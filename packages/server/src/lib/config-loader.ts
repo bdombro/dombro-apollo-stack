@@ -32,16 +32,16 @@ nconf.file('base.yaml', { file: 'config/base.yaml', format: yaml });
 // Validate that there aren't missing values
 const o = nconf.get();
 
-function findNullsRecurssive(tree: any, parentPath = '', nulls: string[] = []) {
+function findNullsRecursive(tree: any, parentPath = '', nulls: string[] = []) {
 	Object.entries(tree).forEach(([k, v]) => {
 		const path = parentPath ? `${parentPath}.${k}` : k;
 		if (v === null) nulls.push(path);
 		else if (typeof v === 'string') return;
-		else findNullsRecurssive(v, path, nulls);
+		else findNullsRecursive(v, path, nulls);
 	});
 	return nulls;
 }
-const nulls = findNullsRecurssive(o);
+const nulls = findNullsRecursive(o);
 
 if(nulls.length) {
 	throw `Env is missing variables: ${nulls}`;

@@ -13,7 +13,7 @@
     "e2e": "cd e2e && jest",
     "lint": "eslint --cache --fix --ext .js,.jsx,.ts,.tsx src",
     "format": "npm run lint",
-    "repl": "ts-node-dev --respawn repl",
+    "repl": "ts-node-dev --respawn repl"
   },
   "eslintConfig": {
     "plugins": [
