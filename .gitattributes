@@ -1,0 +1,5 @@
+package-lock.json binary linguist-generated=true
+dist/* linguist-generated=true
+generated/* linguist-generated=true
+
+fragmentTypes.json binary linguist-generated=true

@@ -1,0 +1,17 @@
+baseUrl:
+port:
+apollo:
+  path: /graphql
+  debug:
+  tracing:
+  playground:
+#database:
+#  user:
+#  password:
+#  database:
+#  host: postgres
+#  port: 5432
+authentication:
+  audience:
+  issuer:
+  jwksUri:

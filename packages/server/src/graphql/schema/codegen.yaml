@@ -1,0 +1,37 @@
+schema:
+    - ./src/graphql/schema/**/*.graphql
+overwrite: true
+config:
+    noSchemaStitching: true
+    namingConvention:
+        typeNames: change-case#pascalCase
+        enumValues: change-case#upperCase
+    scalars:
+        DateTime: Date
+        Money: Money
+        PaginationCursor: PaginationCursor
+generates:
+    # merges the schema files into one file
+    src/generated/schema.graphql:
+        hooks:
+            afterOneFileWrite:
+                - prettier --write
+        plugins:
+            - schema-ast
+    src/generated/index.ts:
+        hooks:
+            afterOneFileWrite:
+                - eslint --fix
+                - prettier --write
+        config:
+            contextType: '../graphql/context#Context'
+            mappers:
+                User: 'Merge<User, { userId: string }>'
+        plugins:
+            - add: |
+                  /* eslint-disable @typescript-eslint/no-explicit-any */
+
+                  import { PaginationCursor } from '../lib/pagination';
+                  import { Merge } from '../lib/types';
+            - typescript
+            - typescript-resolvers

@@ -1,0 +1,9 @@
+package.json
+package-lock.json
+dist/
+.nyc_output/
+coverage/
+.vscode/
+test/.recordings
+.circleci/
+reports/

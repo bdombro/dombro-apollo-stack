@@ -1,0 +1,30 @@
+interface Node {
+	id: ID!
+}
+
+type PageInfo {
+	hasNextPage: Boolean!
+	hasPreviousPage: Boolean!
+	startCursor: PaginationCursor
+	endCursor: PaginationCursor
+}
+
+## type can be extended in a modular fasion
+
+##  ./accounts.graphql
+##
+##	extend type Query {
+##		accounts(): [Account]
+##	}
+
+type Query {
+	node(id: ID!): Node
+	nodes(ids: [ID!]!): [Node]!
+}
+
+type Mutation
+
+schema {
+	query: Query
+	mutation: Mutation
+}

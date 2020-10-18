@@ -1,0 +1,6 @@
+{
+	"watch": ["src", "config"],
+	"ext": "js,ts,gql,graphql,json,yml,yaml",
+	"exec": "babel-node ./src --extensions \"$npm_package_config_babel_extensions\"",
+	"signal": "SIGTERM"
+}

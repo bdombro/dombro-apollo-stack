@@ -1,0 +1,8 @@
+node_modules/
+npm-debug.log
+config/local.*
+coverage/
+dist/
+.nyc_output/
+*.log
+.npmrc
