@@ -2,8 +2,8 @@ import 'expect-puppeteer';
 import { loadPage } from '../lib/load';
 
 describe('React App', () => {
-	it("should be titled 'Skipjack • Under Armour'", async () => {
+	it("should be titled 'React • Dombro'", async () => {
 		await loadPage({});
-		expect(await page.title()).toBe('Skipjack • Under Armour');
+		expect(await page.title()).toBe('React • Dombro');
 	});
 });
