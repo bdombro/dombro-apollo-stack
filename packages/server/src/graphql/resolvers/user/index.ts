@@ -29,9 +29,9 @@ const Query: RootQueryResolver<'user' | 'users' | 'token'> = {
 			first: args.first,
 			after: args.after
 				? {
-					createdAt: new Date(args.after.valueAsNumber(0)),
-					id: args.after.valueAsString(1),
-				}
+						createdAt: new Date(args.after.valueAsNumber(0)),
+						id: args.after.valueAsString(1),
+				  }
 				: undefined,
 		});
 
@@ -45,11 +45,16 @@ const Query: RootQueryResolver<'user' | 'users' | 'token'> = {
 	},
 	async token(_, { email, password }, { dataSources: ds }) {
 		const user = await ds.inMemory.userByEmail(email);
-		console.dir(await passwords.hash(password));
 		if (!(user?.password && (await passwords.compare(password, user.password)))) {
 			throw new NotFoundError(`User and/or Password Unknown`);
 		}
-		return jwt.sign({ id: user.id, roles: user.roles }, config.authentication.secret, { expiresIn: '1d' });
+		return {
+			accessToken: jwt.sign({ id: user.id, roles: user.roles }, config.authentication.secret, {
+				expiresIn: '1d',
+			}),
+			userId: toGlobalId(ResolverTypes.User, user.id),
+			roles: user.roles,
+		};
 	},
 };
 
@@ -76,9 +81,9 @@ const User: RequiredPick<UserResolvers, 'posts'> = {
 			first,
 			after: after
 				? {
-					createdAt: new Date(after.valueAsNumber(0)),
-					id: after.valueAsString(1),
-				}
+						createdAt: new Date(after.valueAsNumber(0)),
+						id: after.valueAsString(1),
+				  }
 				: undefined,
 		});
 

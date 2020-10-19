@@ -9,6 +9,8 @@ import AuthMeta from "./Auth/meta";
 import Dashboard from "./Dashboard";
 import DashboardMeta from "./Dashboard/meta";
 import NotFound from "./NotFound";
+import Posts from "./Posts";
+import PostsMeta from "./Posts/meta";
 
 const Component: React.FC = () => {
   const routes: PartialRouteObject[] = [
@@ -16,6 +18,7 @@ const Component: React.FC = () => {
     { path: DashboardMeta.slug + "/*", element: <Dashboard /> },
     { path: AuthMeta.slug + "/*", element: <Auth /> },
     { path: AdminMeta.slug + "/*", element: <Admin /> },
+    { path: PostsMeta.slug + "/*", element: <Posts /> },
     { path: "*", element: <NotFound /> },
   ];
   return useRoutes(routes);

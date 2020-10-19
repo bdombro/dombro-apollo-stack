@@ -23,7 +23,6 @@ export type Scalars = {
   DateTime: Date;
   /** An opaque string that can be used in a pagination operation */
   PaginationCursor: PaginationCursor;
-  JwtAccessToken: any;
   /** A string that represents a numeric money value */
   Money: Money;
 };
@@ -38,7 +37,6 @@ export type CreateUserInput = {
   name: Scalars['String'];
   password?: Maybe<Scalars['String']>;
 };
-
 
 
 
@@ -147,7 +145,7 @@ export type Query = {
   post?: Maybe<Post>;
   /** Find a collection of posts by defined filters, may return 0 results */
   posts?: Maybe<PostConnection>;
-  token?: Maybe<Scalars['JwtAccessToken']>;
+  token?: Maybe<TokenResponse>;
   /** Find a specific inMemory by it's globally uinque identifier */
   user?: Maybe<User>;
   /** Find a collection of users by defined filters, may return 0 results */
@@ -194,6 +192,13 @@ export type QueryUsersArgs = {
   filters?: Maybe<UserListFilters>;
 };
 
+export type TokenResponse = {
+  __typename?: 'TokenResponse';
+  accessToken: Scalars['String'];
+  userId: Scalars['ID'];
+  roles: Array<Scalars['String']>;
+};
+
 export type UpdatePostInput = {
   id: Scalars['ID'];
   title?: Maybe<Scalars['String']>;
@@ -217,6 +222,8 @@ export type User = Node & {
   name: Scalars['String'];
   /** All posts authored by this user */
   posts?: Maybe<PostConnection>;
+  /** Access Control Roles */
+  roles: Array<Scalars['String']>;
   /** Timestamp of when inMemory was last updated */
   updatedAt: Scalars['DateTime'];
 };
@@ -327,7 +334,7 @@ export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   PostEdge: ResolverTypeWrapper<Omit<PostEdge, 'node'> & { node: ResolversTypes['Post'] }>;
   PostListFilters: PostListFilters;
-  JwtAccessToken: ResolverTypeWrapper<Scalars['JwtAccessToken']>;
+  TokenResponse: ResolverTypeWrapper<TokenResponse>;
   UserListFilters: UserListFilters;
   UserConnection: ResolverTypeWrapper<Omit<UserConnection, 'edges'> & { edges: Array<ResolversTypes['UserEdge']> }>;
   UserEdge: ResolverTypeWrapper<Omit<UserEdge, 'node'> & { node: ResolversTypes['User'] }>;
@@ -355,7 +362,7 @@ export type ResolversParentTypes = {
   Boolean: Scalars['Boolean'];
   PostEdge: Omit<PostEdge, 'node'> & { node: ResolversParentTypes['Post'] };
   PostListFilters: PostListFilters;
-  JwtAccessToken: Scalars['JwtAccessToken'];
+  TokenResponse: TokenResponse;
   UserListFilters: UserListFilters;
   UserConnection: Omit<UserConnection, 'edges'> & { edges: Array<ResolversParentTypes['UserEdge']> };
   UserEdge: Omit<UserEdge, 'node'> & { node: ResolversParentTypes['User'] };
@@ -369,10 +376,6 @@ export type ResolversParentTypes = {
 
 export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['DateTime'], any> {
   name: 'DateTime';
-}
-
-export interface JwtAccessTokenScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JwtAccessToken'], any> {
-  name: 'JwtAccessToken';
 }
 
 export interface MoneyScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Money'], any> {
@@ -429,9 +432,16 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   nodes?: Resolver<Array<Maybe<ResolversTypes['Node']>>, ParentType, ContextType, RequireFields<QueryNodesArgs, 'ids'>>;
   post?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryPostArgs, 'id'>>;
   posts?: Resolver<Maybe<ResolversTypes['PostConnection']>, ParentType, ContextType, RequireFields<QueryPostsArgs, 'first'>>;
-  token?: Resolver<Maybe<ResolversTypes['JwtAccessToken']>, ParentType, ContextType, RequireFields<QueryTokenArgs, 'email' | 'password'>>;
+  token?: Resolver<Maybe<ResolversTypes['TokenResponse']>, ParentType, ContextType, RequireFields<QueryTokenArgs, 'email' | 'password'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
   users?: Resolver<Maybe<ResolversTypes['UserConnection']>, ParentType, ContextType, RequireFields<QueryUsersArgs, 'first'>>;
+};
+
+export type TokenResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TokenResponse'] = ResolversParentTypes['TokenResponse']> = {
+  accessToken?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  roles?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
@@ -440,6 +450,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   posts?: Resolver<Maybe<ResolversTypes['PostConnection']>, ParentType, ContextType, RequireFields<UserPostsArgs, 'first'>>;
+  roles?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -458,7 +469,6 @@ export type UserEdgeResolvers<ContextType = Context, ParentType extends Resolver
 
 export type Resolvers<ContextType = Context> = {
   DateTime?: GraphQLScalarType;
-  JwtAccessToken?: GraphQLScalarType;
   Money?: GraphQLScalarType;
   Mutation?: MutationResolvers<ContextType>;
   Node?: NodeResolvers<ContextType>;
@@ -468,6 +478,7 @@ export type Resolvers<ContextType = Context> = {
   PostConnection?: PostConnectionResolvers<ContextType>;
   PostEdge?: PostEdgeResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  TokenResponse?: TokenResponseResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   UserConnection?: UserConnectionResolvers<ContextType>;
   UserEdge?: UserEdgeResolvers<ContextType>;

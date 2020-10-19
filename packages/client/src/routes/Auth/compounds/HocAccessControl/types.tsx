@@ -1,7 +1,7 @@
 import React from "react";
 
 export type DefaultProps = {
-  permissions?: string[];
+  allowRoles?: string[];
   hidden?: boolean;
   children: React.ReactNode;
 };

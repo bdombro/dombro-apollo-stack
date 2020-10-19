@@ -5,6 +5,7 @@ import AdminMeta from "../../../../../../routes/Admin/meta";
 import { HocAccessControl } from "../../../../../../routes/Auth/compounds/HocAccessControl";
 import ProfileMeta from "../../../../../../routes/Auth/routes/Profile/meta";
 import DashboardMeta from "../../../../../../routes/Dashboard/meta";
+import PostsMeta from "../../../../../../routes/Posts/meta";
 import { DefaultComponent } from "./types";
 
 export const Component: DefaultComponent = () => {
@@ -16,7 +17,12 @@ export const Component: DefaultComponent = () => {
             Dashboard
           </NavLink>
         </li>
-        <HocAccessControl permissions={AdminMeta.permissions} hidden={true}>
+        <li>
+          <NavLink to={PostsMeta.path} activeClassName="active">
+            Posts
+          </NavLink>
+        </li>
+        <HocAccessControl allowRoles={AdminMeta.allowRoles} hidden={true}>
           <li>
             <NavLink to={AdminMeta.path} activeClassName="active">
               Admin

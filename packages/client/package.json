@@ -1,11 +1,12 @@
 {
-  "name": "dombro-react-boilerplate",
+  "name": "@dombro/react-client",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "upgrade-deps": "npx ncu -u && npm i && npm upgrade",
-    "start": "react-app-rewired start",
+    "start": "BROWSER=false react-app-rewired start",
     "build": "react-app-rewired build",
+    "codegen": "rimraf */**/__generated__ && apollo client:codegen --target=typescript --globalTypesFile=src/__generated__/globalTypes.ts",
     "serve": "serve -s build -l 3000",
     "prod": "npm run build && npm run serve",
     "analyze": "ANALYZE=1 npm run build",
@@ -47,6 +48,8 @@
     ]
   },
   "dependencies": {
+    "@apollo/client": "^3.2.4",
+    "graphql": "^15.3.0",
     "history": "^5.0.0",
     "preact": "^10.4.7",
     "react": "^16.13.1",
@@ -69,6 +72,7 @@
     "@types/puppeteer": "^3.0.2",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
+    "apollo": "^2.31.0",
     "eslint": "^6.6.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",

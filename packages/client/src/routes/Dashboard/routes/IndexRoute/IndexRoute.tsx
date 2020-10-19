@@ -10,7 +10,7 @@ const Component: React.FC = () => {
     <>
       <h1>Welcome to the dashboard!</h1>
       <ul>
-        <HocAccessControl permissions={AdminMeta.permissions} hidden={true}>
+        <HocAccessControl allowRoles={AdminMeta.allowRoles} hidden={true}>
           <li>
             <Link to={AdminMeta.path}>Goto Admin Dashboard</Link>
           </li>

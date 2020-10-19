@@ -54,6 +54,7 @@ export const waitFor: WaitFor = async (callback: any, options: any) => {
     }
 
     await callbackPromise()
+      // eslint-disable-next-line
       .then((r) => (res = r))
       .catch((e) => {
         if (e instanceof Error) {

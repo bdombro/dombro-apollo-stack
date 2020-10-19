@@ -11,7 +11,7 @@ const Loaded = React.lazy(() => import("./NotFound"));
 
 const Component: React.FC = () => {
   const { state: authState } = useAuthentication();
-  let Layout = authState.user.username ? DefaultLayout : BlankLayout;
+  let Layout = authState.userId ? DefaultLayout : BlankLayout;
   return (
     <RouteAccessControl routeMeta={routeMeta}>
       <Layout routeMeta={routeMeta}>

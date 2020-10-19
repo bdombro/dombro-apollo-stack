@@ -6,7 +6,7 @@ const routeMeta: RouteMeta = {
   title: "Profile",
   slug,
   path: `${ParentMeta.path}/${slug}`,
-  permissions: ["active.dashboard"],
+  allowRoles: ["editor"],
   parent: ParentMeta,
 };
 export default routeMeta;

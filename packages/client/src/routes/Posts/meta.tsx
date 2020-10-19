@@ -1,11 +1,10 @@
 import { RouteMeta } from "../types";
 
-const slug = "admin";
+const slug = "posts";
 const routeMeta: RouteMeta = {
-  title: "Admin Dashboard",
+  title: "Posts",
   slug,
   path: `/${slug}`,
-  allowRoles: ["admin"],
-  hidden: true,
+  allowRoles: ["editor"],
 };
 export default routeMeta;

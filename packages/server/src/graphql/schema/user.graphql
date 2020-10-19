@@ -13,10 +13,8 @@ extend type Query {
 		"The possible fields to filter account, found in 'input AccountListFilters'"
 		filters: UserListFilters
 	): UserConnection
-	token(email: String!, password: String!): JwtAccessToken
+	token(email: String!, password: String!): TokenResponse
 }
-
-scalar JwtAccessToken
 
 # Mutation Types
 extend type Mutation {
@@ -58,6 +56,14 @@ type User implements Node {
 	email: String!
 	"User's name"
 	name: String!
+	"Access Control Roles"
+	roles: [String!]!
+}
+
+type TokenResponse {
+	accessToken: String!
+	userId: ID!
+	roles: [String!]!
 }
 
 # Mutation to create a new inMemory

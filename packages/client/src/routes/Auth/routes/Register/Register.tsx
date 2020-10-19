@@ -5,12 +5,9 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import CheckboxFieldset from "../../../../molecules/CheckboxFieldset";
 import TextFieldset from "../../../../molecules/TextFieldset";
 import { useAuthentication } from "../../../../state";
-import { RegisterBody, UserFields } from "../../../../state/authentication/mockApi/types";
 import { wait } from "../../../../util/wait";
 import loginMeta from "../Login/meta";
 import routeMeta from "./meta";
-
-export type FormValues = RegisterBody;
 
 const Component: React.FC = () => {
   const location = useLocation();
@@ -24,22 +21,27 @@ const Component: React.FC = () => {
 
   const onSubmit = React.useCallback(
     async (values: FormValues) => {
-      values.username = values.email;
-      const res = await register(values);
+      const { terms, ...registerProps } = values;
+      if (!terms) {
+        setError("terms", { type: "manual", message: "You must accept the terms." });
+        return;
+      }
+      const res = await register(registerProps);
       if (res.errors)
-        Object.entries(res.errors).forEach(([field, message]) =>
-          setError(field as keyof FormValues, { type: "manual", message: message as string })
-        );
+        res.errors.forEach((error) => {
+          const field = /password/i.test(error.message) ? "password" : "email";
+          setError(field, { type: "manual", message: error.message });
+        });
       console.info("Register Success");
     },
     [register, setError]
   );
 
   React.useEffect(() => {
-    if (authState.user.username) wait(1000).then(() => (from ? navigate(-1) : navigate("/")));
-  }, [authState.user.username, from, navigate]);
+    if (authState.userId) wait(1000).then(() => (from ? navigate(-1) : navigate("/")));
+  }, [authState.userId, from, navigate]);
 
-  if (authState.user.username) {
+  if (authState.userId) {
     return (
       <>
         <h1>Success!</h1>
@@ -53,21 +55,14 @@ const Component: React.FC = () => {
       <h1>{routeMeta.title}</h1>
       <form onSubmit={handleSubmit(onSubmit)}>
         <TextFieldset
-          name={UserFields.givenName}
-          labelText="First Name"
-          defaultValue="Jane"
-          error={errors?.givenName?.message}
+          name="name"
+          labelText="Name"
+          defaultValue="Jane Smith"
+          error={errors?.name?.message}
           inputRef={registerField()}
         />
         <TextFieldset
-          name={UserFields.surname}
-          labelText="Last Name"
-          defaultValue="Smith"
-          error={errors?.surname?.message}
-          inputRef={registerField()}
-        />
-        <TextFieldset
-          name={UserFields.email}
+          name="email"
           labelText="Email"
           type="email"
           autoFocus
@@ -77,7 +72,7 @@ const Component: React.FC = () => {
           inputRef={registerField()}
         />
         <TextFieldset
-          name={UserFields.password}
+          name="password"
           labelText="Password"
           type="password"
           placeholder="********"
@@ -86,7 +81,7 @@ const Component: React.FC = () => {
           inputRef={registerField()}
         />
         <CheckboxFieldset
-          name={UserFields.terms}
+          name="terms"
           labelText="Do you agree to these terms?"
           error={errors?.terms?.message}
           inputRef={registerField()}
@@ -101,3 +96,10 @@ const Component: React.FC = () => {
 };
 
 export default Component;
+
+export interface FormValues {
+  email: string;
+  password: string;
+  name: string;
+  terms: boolean;
+}

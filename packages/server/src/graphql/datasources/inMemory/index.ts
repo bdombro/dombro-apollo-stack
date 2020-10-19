@@ -33,18 +33,29 @@ export interface DbUser {
 	name: string;
 }
 
-const testUser: DbUser = {
+const testUser1: DbUser = {
 	id: '1234',
 	createdAt: now,
 	updatedAt: now,
-	email: 'h@h.com',
+	email: 'admin@example.com',
 	emailConfirmed: true,
 	active: true,
 	password: '$2b$10$UAwotKUBOp8A4y5tmGIxuOpdm5fTfpSVjb2ULmEN3BYz1OkkvtVnq', // 'password' with 10 rounds bcrypt
 	roles: [Roles.ADMIN, Roles.EDITOR],
 	name: 'Heather',
 };
-const dbUsers: DbUser[] = [testUser];
+const testUser2: DbUser = {
+	id: '1235',
+	createdAt: now,
+	updatedAt: now,
+	email: 'user@example.com',
+	emailConfirmed: true,
+	active: true,
+	password: '$2b$10$UAwotKUBOp8A4y5tmGIxuOpdm5fTfpSVjb2ULmEN3BYz1OkkvtVnq', // 'password' with 10 rounds bcrypt
+	roles: [Roles.EDITOR],
+	name: 'Nancy',
+};
+const dbUsers: DbUser[] = [testUser1, testUser2];
 
 export interface DbPost {
 	id: string;
@@ -85,8 +96,6 @@ export default class InMemoryDataSource extends DataSource<ContextInit> {
 			? user
 			: {
 					...user,
-					createdAt: now,
-					updatedAt: now,
 					emailConfirmed: true,
 					active: true,
 					password: '',
@@ -173,16 +182,17 @@ export default class InMemoryDataSource extends DataSource<ContextInit> {
 
 	public async createPost(input: CreatePostInput): Promise<DbPost> {
 		this.assertRole(Roles.EDITOR);
-		if (!input.authorId) input.authorId = this.context.user.id;
-		if (this.context.user.id !== input.authorId && !this.hasRole(Roles.ADMIN)) {
+		const authorId = input.authorId || this.context.user.id;
+		if (authorId !== this.context.user.id && !this.hasRole(Roles.ADMIN)) {
 			throw new ForbiddenError(`Permission denied to create post with author != current user`);
 		}
-		if (!dbUsers.find(u => u.id === input.authorId)) {
-			throw new ValidationError(`User with id ${input.authorId} not found`);
+		if (!dbUsers.find(u => u.id === authorId)) {
+			throw new ValidationError(`User with id ${authorId} not found`);
 		}
 		const now = new Date();
 		const post: DbPost = {
 			...input,
+			authorId,
 			id: `${dbPosts.length + 1}`,
 			createdAt: now,
 			updatedAt: now,

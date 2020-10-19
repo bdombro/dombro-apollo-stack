@@ -4,13 +4,10 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import TextFieldset from "../../../../molecules/TextFieldset";
 import { useAuthentication } from "../../../../state/authentication";
-import { LoginBody, UserFields } from "../../../../state/authentication/mockApi/types";
 import { wait } from "../../../../util/wait";
 import forgotMeta from "../ForgotPassword/meta";
 import registerMeta from "../Register/meta";
 import routeMeta from "./meta";
-
-export type FormValues = LoginBody;
 
 const Component: React.FC = () => {
   const location = useLocation();
@@ -25,19 +22,20 @@ const Component: React.FC = () => {
     async (values: FormValues) => {
       const res = await login(values);
       if (res.errors)
-        Object.entries(res.errors).forEach(([field, message]) =>
-          setError(field as keyof FormValues, { type: "manual", message: message as string })
-        );
+        res.errors.forEach((error) => {
+          const field = /password/i.test(error.message) ? "password" : "email";
+          setError(field, { type: "manual", message: error.message });
+        });
       console.info("Login Success");
     },
     [login, setError]
   );
 
   React.useEffect(() => {
-    if (authState.user.username) wait(1000).then(() => (from ? navigate(-1) : navigate("/")));
-  }, [authState.user.username, from, navigate]);
+    if (authState.userId) wait(1000).then(() => (from ? navigate(-1) : navigate("/")));
+  }, [authState.userId, from, navigate]);
 
-  if (authState.user.username) {
+  if (authState.userId) {
     return (
       <>
         <h1>Success!</h1>
@@ -51,21 +49,21 @@ const Component: React.FC = () => {
       <h1>{routeMeta.title}</h1>
       <form onSubmit={handleSubmit(onSubmit)}>
         <TextFieldset
-          name={UserFields.username}
-          labelText="Username or Email"
+          name="email"
+          labelText="Email"
           type="text"
           autoFocus
-          placeholder="john@acme.com"
+          placeholder="stacey@acme.com"
           defaultValue="admin@example.com"
-          error={errors?.username?.message}
+          error={errors?.email?.message}
           inputRef={registerField()}
         />
         <TextFieldset
-          name={UserFields.password}
+          name="password"
           labelText="Password"
           type="password"
           placeholder="********"
-          defaultValue="CoolPassword9"
+          defaultValue="password"
           error={errors?.password?.message}
           inputRef={registerField()}
         />
@@ -80,3 +78,8 @@ const Component: React.FC = () => {
 };
 
 export default Component;
+
+export interface FormValues {
+  email: string;
+  password: string;
+}

@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 
 import TextFieldset from "../../../../molecules/TextFieldset";
-import { UserFields } from "../../../../state/authentication/mockApi/types";
 import routeMeta from "./meta";
 
 interface FormValues {
@@ -16,6 +15,7 @@ const Component: React.FC = () => {
   const { handleSubmit, register, errors } = useForm<FormValues>();
   const onSubmit = (data: FormValues) => {
     console.log(data);
+    alert("Password Reset not implemented yet.");
     setSuccess(true);
   };
 
@@ -34,7 +34,7 @@ const Component: React.FC = () => {
       <h1>{routeMeta.title}</h1>
       <form onSubmit={handleSubmit(onSubmit)}>
         <TextFieldset
-          name={UserFields.email}
+          name="email"
           labelText="Email"
           type="email"
           autoFocus

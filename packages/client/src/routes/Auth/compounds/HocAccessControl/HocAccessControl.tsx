@@ -1,15 +1,14 @@
 import React from "react";
 
 import { useAuthentication } from "../../../../state/authentication";
-import arrayDifference from "../../../../util/arrayDifference";
 import { DefaultComponent } from "./types";
 
 export const HocAccessControl: DefaultComponent = (props) => {
-  const { permissions = [], hidden = false, children } = props;
+  const { allowRoles = [], hidden = false, children } = props;
   const { state: authState } = useAuthentication();
-  const missingPermissions = arrayDifference(permissions, authState.user.permissions);
-  if (missingPermissions.length) {
-    console.debug(`ComponentAccessControl: Blocked by ${missingPermissions.join(",")}`);
+  const hasAccess = authState.roles.includes("admin") || allowRoles.find((r) => authState.roles.includes(r));
+  if (!hasAccess) {
+    console.debug(`HocAccessControl: Blocked`);
     if (hidden) return <></>;
     return <>Section Unavailable to Your User</>;
   }

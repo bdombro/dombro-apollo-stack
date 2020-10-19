@@ -1,44 +1,35 @@
+import { gql, useApolloClient } from "@apollo/client";
 import React from "react";
-import { useInterval, useLocalStorage } from "react-use";
+import { useLocalStorage } from "react-use";
 
-import { mockApi } from "./mockApi";
-import { EndpointsEnum } from "./mockApi/types";
 import { ContextType } from "./types";
 
 export const defaultValue: ContextType["state"] = Object.freeze({
-  user: {
-    email: "",
-    username: "",
-    token: "",
-    givenName: "",
-    surname: "",
-    terms: "",
-    avatar: "",
-    permissions: [],
-  },
-  token: "",
-  refreshToken: "",
+  accessToken: "",
+  userId: "",
+  roles: [],
 });
 
 export const AuthenticationContext = React.createContext<ContextType>({
   state: defaultValue,
-  login: async () => ({ error: "Not initialized" }),
+  login: async () => ({ errors: [{ message: "Not initialized" }] as any }),
   logout: async () => {},
-  register: async () => ({ error: "Not initialized" }),
+  register: async () => ({ errors: [{ message: "Not initialized" }] as any }),
 });
 
 export const AuthenticationProvider: React.FC = ({ children }) => {
   const [state = defaultValue, setState] = useLocalStorage<ContextType["state"]>("authentication", defaultValue);
+  const apolloClient = useApolloClient();
 
   const login: ContextType["login"] = React.useCallback(
     async (creds) => {
-      const res = await mockApi(EndpointsEnum.login, creds);
-      if (!res.error) {
-        setState(res.data);
+      const res = await apolloClient.query({ query: TOKEN, variables: creds });
+      if (!res.errors) {
+        setState(res.data.token);
       }
       return res;
     },
-    [setState]
+    [apolloClient, setState]
   );
 
   const logout: ContextType["logout"] = React.useCallback(async () => {
@@ -47,25 +38,25 @@ export const AuthenticationProvider: React.FC = ({ children }) => {
 
   const register: ContextType["register"] = React.useCallback(
     async (creds) => {
-      const res = await mockApi(EndpointsEnum.register, creds);
-      if (!res.error) {
-        setState(res.data);
+      const regRes = await apolloClient.query({ query: CREATE_USER, variables: creds });
+      if (regRes.error) {
+        return regRes;
       }
-      return res;
+      return login({ email: creds.email, password: creds.password! });
     },
-    [setState]
+    [apolloClient, login]
   );
 
-  const refresh = React.useCallback(async () => {
-    if (state.refreshToken) {
-      const res = await mockApi(EndpointsEnum.refresh, { refreshToken: state.refreshToken });
-      if (!res.error) {
-        setState(res.data);
-      }
-    }
-  }, [setState, state.refreshToken]);
-
-  useInterval(refresh, 10 * 1000);
+  // const refresh = React.useCallback(async () => {
+  //   if (state.refreshToken) {
+  //     const res = await mockApi(EndpointsEnum.refresh, { refreshToken: state.refreshToken });
+  //     if (!res.error) {
+  //       setState(res.data);
+  //     }
+  //   }
+  // }, [setState, state.refreshToken]);
+  //
+  // useInterval(refresh, 10 * 1000);
 
   const values: ContextType = { state, login, logout, register };
 
@@ -75,3 +66,21 @@ export const AuthenticationProvider: React.FC = ({ children }) => {
 export function useAuthentication() {
   return React.useContext(AuthenticationContext);
 }
+
+const TOKEN = gql`
+  query Token($email: String!, $password: String!) {
+    token(email: $email, password: $password) {
+      accessToken
+      userId
+      roles
+    }
+  }
+`;
+
+const CREATE_USER = gql`
+  mutation CreateUser($input: CreateUserInput!) {
+    createUser(input: $input) {
+      id
+    }
+  }
+`;

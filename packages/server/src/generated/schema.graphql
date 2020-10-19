@@ -15,8 +15,6 @@ the RFC 3339 profile of the ISO 8601 standard for representation of dates and ti
 """
 scalar DateTime
 
-scalar JwtAccessToken
-
 """A string that represents a numeric money value"""
 scalar Money
 
@@ -123,7 +121,7 @@ type Query {
     """
     filters: PostListFilters
   ): PostConnection
-  token(email: String!, password: String!): JwtAccessToken
+  token(email: String!, password: String!): TokenResponse
 
   """Find a specific inMemory by it's globally uinque identifier"""
   user(id: ID!): User
@@ -141,6 +139,12 @@ type Query {
     """
     filters: UserListFilters
   ): UserConnection
+}
+
+type TokenResponse {
+  accessToken: String!
+  userId: ID!
+  roles: [String!]!
 }
 
 input UpdatePostInput {
@@ -171,6 +175,9 @@ type User implements Node {
 
   """All posts authored by this user"""
   posts(first: Int! = 25, after: PaginationCursor): PostConnection
+
+  """Access Control Roles"""
+  roles: [String!]!
 
   """Timestamp of when inMemory was last updated"""
   updatedAt: DateTime!

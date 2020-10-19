@@ -9,14 +9,16 @@
     "postclean": "lerna clean",
     "postinstall": "lerna bootstrap",
     "rebuild": "lerna exec --stream npm rebuild -- --from-source",
-    "start": "lerna run --parallel start",
-    "start:client": "lerna run --scope=client start",
+    "// React-scripts currently wont work with lerna run, see https://github.com/facebook/create-react-app/issues/8685#issuecomment-606933276",
+    "start:broken": "lerna run --parallel start",
+    "start": "concurrently -n client,server 'cd packages/client && npm start' 'cd packages/server && npm start'",
     "test": "lerna run --stream test && lerna run --stream e2e",
     "test:watch": "lerna run --parallel test:watch",
     "codegen": "lerna run --parallel codegen"
   },
   "dependencies": {},
   "devDependencies": {
+    "concurrently": "^5.3.0",
     "lerna": "^3.22.1"
   }
 }

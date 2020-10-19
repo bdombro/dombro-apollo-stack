@@ -1,19 +1,20 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { useAuthentication } from "../../../../state/authentication";
+import { wait } from "../../../../util/wait";
 import LoginMeta from "../Login/meta";
 
 const Logout: Logout = () => {
   const { logout } = useAuthentication();
+  const navigate = useNavigate();
   React.useEffect(() => {
     logout();
-  }, [logout]);
+    wait(1000).then(() => navigate(LoginMeta.path));
+  }, [logout, navigate]);
   return (
     <>
-      <div>
-        You have been logged out. <Link to={LoginMeta.path}>Log back in?</Link>
-      </div>
+      <div>You have been logged out. Redirecting to login...</div>
     </>
   );
 };
