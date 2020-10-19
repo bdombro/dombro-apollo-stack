@@ -1,12 +1,6 @@
 import { PageInfo } from '../generated';
 
-import {
-	Base64String,
-	fromGlobalId,
-	safeRecord,
-	toGlobalId,
-	unbase64,
-} from './util';
+import { Base64String, fromGlobalId, safeRecord, toGlobalId, unbase64 } from './util';
 
 export interface PagedResult<T> {
 	results: T[];
@@ -41,17 +35,13 @@ export class PaginationCursor {
 		const { type, id } = fromGlobalId(encoded);
 
 		if (type !== 'cursor') {
-			throw new TypeError(
-				`Invalid cursor decoded as ${unbase64(encoded)}`,
-			);
+			throw new TypeError(`Invalid cursor decoded as ${unbase64(encoded)}`);
 		}
 
 		const keyset = JSON.parse(id);
 
 		if (!Array.isArray(keyset)) {
-			throw new TypeError(
-				`Invalid cursor decoded as ${unbase64(encoded)}`,
-			);
+			throw new TypeError(`Invalid cursor decoded as ${unbase64(encoded)}`);
 		}
 
 		return new PaginationCursor(keyset);
@@ -60,9 +50,7 @@ export class PaginationCursor {
 	public valueAsString(i: number): string {
 		const value = this.keyset[i];
 		if (typeof value !== 'string') {
-			throw new TypeError(
-				`Value at position ${i} was not a string. Value '${value}'`,
-			);
+			throw new TypeError(`Value at position ${i} was not a string. Value '${value}'`);
 		}
 		return value;
 	}
@@ -70,18 +58,13 @@ export class PaginationCursor {
 	public valueAsNumber(i: number): number {
 		const value = this.keyset[i];
 		if (typeof value !== 'number') {
-			throw new TypeError(
-				`Value at position ${i} was not a number. Value '${value}'`,
-			);
+			throw new TypeError(`Value at position ${i} was not a number. Value '${value}'`);
 		}
 		return value;
 	}
 }
 
-export function connectionFromPaged<T, R>(
-	data: PagedResult<T>,
-	mapper: (result: T) => Edge<R>,
-): Connection<R> {
+export function connectionFromPaged<T, R>(data: PagedResult<T>, mapper: (result: T) => Edge<R>): Connection<R> {
 	const edges = data.results.map(mapper);
 
 	const { 0: start, [edges.length - 1]: end } = edges;

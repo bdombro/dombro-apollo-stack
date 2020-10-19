@@ -1,4 +1,3 @@
-import assert from 'assert';
 import http from 'http';
 import { AddressInfo } from 'net';
 import url from 'url';
@@ -9,9 +8,7 @@ import bodyParser from 'body-parser';
 
 import registerGraphQL from './controllers/graphql';
 import defaultConfig, { Config } from './lib/config';
-import { assertExists } from './lib/util';
 import errorMiddleware from './middleware/error';
-import Playground from './controllers/playground';
 import logger from './lib/logger';
 
 export default (
@@ -35,7 +32,6 @@ export default (
 			// 		text: 'SELECT 1 n',
 			// 	}),
 			// );
-
 			// assert.strictEqual(n, 1);
 		} catch (error) {
 			logger.error('Health check failure', error);
@@ -48,10 +44,9 @@ export default (
 	// Avoid being crawled
 	app.get('/robots.txt', (req, res) => {
 		res.type('text/plain');
-		res.send('User-agent: *\nDisallow: /\n');
+		res.send('DbUser-agent: *\nDisallow: /\n');
 	});
 
-	app.get('/playground', Playground(path, config.apollo.playground));
 	registerGraphQL({ app, onHealthCheck, path });
 
 	// 404 Handler

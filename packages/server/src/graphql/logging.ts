@@ -8,14 +8,8 @@ import { Context } from './context';
 function log(error: GraphQLError): void {
 	const { path, extensions, originalError } = error;
 	logger.error(
-		`${
-			originalError
-				? originalError.stack
-				: `${error.name}: ${error.message}`
-		}\npath: ${JSON.stringify(path)}${
-			extensions
-				? `\nextensions: ${JSON.stringify(extensions, null, 2)}`
-				: ''
+		`${originalError ? originalError.stack : `${error.name}: ${error.message}`}\npath: ${JSON.stringify(path)}${
+			extensions ? `\nextensions: ${JSON.stringify(extensions, null, 2)}` : ''
 		}`,
 	);
 }

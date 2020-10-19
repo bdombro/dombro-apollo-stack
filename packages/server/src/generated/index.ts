@@ -23,35 +23,66 @@ export type Scalars = {
   DateTime: Date;
   /** An opaque string that can be used in a pagination operation */
   PaginationCursor: PaginationCursor;
+  JwtAccessToken: any;
   /** A string that represents a numeric money value */
   Money: Money;
 };
 
+export type CreatePostInput = {
+  authorId?: Maybe<Scalars['ID']>;
+  title: Scalars['String'];
+};
+
 export type CreateUserInput = {
   email: Scalars['String'];
+  name: Scalars['String'];
+  password?: Maybe<Scalars['String']>;
 };
+
 
 
 
 export type Mutation = {
   __typename?: 'Mutation';
   /**
-   * Mutation that creates a new user.
+   * Mutation that creates a new post.
+   * All fields are required
+   */
+  createPost?: Maybe<Post>;
+  /**
+   * Mutation that creates a new inMemory.
    * All fields are required
    */
   createUser?: Maybe<User>;
   /**
-   * Mutation that updates a specified user
+   * Mutation that updates a specified post
    * Only field required is the ID.
-   * User can then update one to all of the fields
-   * If no fields are passed in, the user is not changed.
+   * DbPost can then update one to posts of the fields
+   * If no fields are passed in, the post is not changed.
+   */
+  updatePost?: Maybe<Post>;
+  /**
+   * Mutation that updates a specified inMemory
+   * Only field required is the ID.
+   * User can then update one to users of the fields
+   * If no fields are passed in, the inMemory is not changed.
    */
   updateUser?: Maybe<User>;
 };
 
 
+export type MutationCreatePostArgs = {
+  input: CreatePostInput;
+};
+
+
 export type MutationCreateUserArgs = {
   input: CreateUserInput;
+};
+
+
+export type MutationUpdatePostArgs = {
+  input: UpdatePostInput;
 };
 
 
@@ -72,11 +103,52 @@ export type PageInfo = {
 };
 
 
+export type Post = Node & {
+  __typename?: 'Post';
+  /** Unique identifier, in the form of a node ID, for a post. For more information on node IDs reference https://relay.dev/ */
+  id: Scalars['ID'];
+  /** Timestamp of when post was created */
+  createdAt: Scalars['DateTime'];
+  /** Timestamp of when post was last updated */
+  updatedAt: Scalars['DateTime'];
+  /** Author of the post */
+  author: User;
+  /** DbPost's name */
+  title: Scalars['String'];
+};
+
+/**
+ * For further explanation on GraphQL connections and edges, reference
+ * https://blog.apollographql.com/explaining-graphql-connections-c48b7c3d6976
+ */
+export type PostConnection = {
+  __typename?: 'PostConnection';
+  pageInfo: PageInfo;
+  edges: Array<PostEdge>;
+};
+
+export type PostEdge = {
+  __typename?: 'PostEdge';
+  cursor: Scalars['PaginationCursor'];
+  node: Post;
+};
+
+/** Possible fields to filter DbPost by */
+export type PostListFilters = {
+  authorId?: Maybe<Scalars['ID']>;
+  title?: Maybe<Scalars['String']>;
+};
+
 export type Query = {
   __typename?: 'Query';
   node?: Maybe<Node>;
   nodes: Array<Maybe<Node>>;
-  /** Find a specific user by it's globally uinque identifier */
+  /** Find a specific post by it's globally uinque identifier */
+  post?: Maybe<Post>;
+  /** Find a collection of posts by defined filters, may return 0 results */
+  posts?: Maybe<PostConnection>;
+  token?: Maybe<Scalars['JwtAccessToken']>;
+  /** Find a specific inMemory by it's globally uinque identifier */
   user?: Maybe<User>;
   /** Find a collection of users by defined filters, may return 0 results */
   users?: Maybe<UserConnection>;
@@ -93,31 +165,66 @@ export type QueryNodesArgs = {
 };
 
 
+export type QueryPostArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryPostsArgs = {
+  first: Scalars['Int'];
+  after?: Maybe<Scalars['PaginationCursor']>;
+  filters?: Maybe<PostListFilters>;
+};
+
+
+export type QueryTokenArgs = {
+  email: Scalars['String'];
+  password: Scalars['String'];
+};
+
+
 export type QueryUserArgs = {
   id: Scalars['ID'];
 };
 
 
 export type QueryUsersArgs = {
-  first?: Scalars['Int'];
+  first: Scalars['Int'];
   after?: Maybe<Scalars['PaginationCursor']>;
   filters?: Maybe<UserListFilters>;
 };
 
+export type UpdatePostInput = {
+  id: Scalars['ID'];
+  title?: Maybe<Scalars['String']>;
+};
+
 export type UpdateUserInput = {
+  id: Scalars['ID'];
+  name?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
 };
 
 export type User = Node & {
   __typename?: 'User';
-  /** Unique identifier, in the form of a node ID, for a user. For more information on node IDs reference https://relay.dev/ */
-  id: Scalars['ID'];
-  /** Timestamp of when user was created */
+  /** Timestamp of when inMemory was created */
   createdAt: Scalars['DateTime'];
-  /** Timestamp of when user was last updated */
-  updatedAt: Scalars['DateTime'];
-  /** User's name */
+  /** User's email */
   email: Scalars['String'];
+  /** Unique identifier, in the form of a node ID, for a inMemory. For more information on node IDs reference https://relay.dev/ */
+  id: Scalars['ID'];
+  /** User's name */
+  name: Scalars['String'];
+  /** All posts authored by this user */
+  posts?: Maybe<PostConnection>;
+  /** Timestamp of when inMemory was last updated */
+  updatedAt: Scalars['DateTime'];
+};
+
+
+export type UserPostsArgs = {
+  first?: Scalars['Int'];
+  after?: Maybe<Scalars['PaginationCursor']>;
 };
 
 /**
@@ -208,19 +315,26 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = {
   Query: ResolverTypeWrapper<{}>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
-  Node: ResolversTypes['User'];
-  User: ResolverTypeWrapper<Merge<User, { userId: string }>>;
+  Node: ResolversTypes['Post'] | ResolversTypes['User'];
+  Post: ResolverTypeWrapper<Omit<Post, 'author'> & { author: ResolversTypes['User'] }>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
+  User: ResolverTypeWrapper<Merge<DbUser, { id: string }>>;
   String: ResolverTypeWrapper<Scalars['String']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   PaginationCursor: ResolverTypeWrapper<Scalars['PaginationCursor']>;
-  UserListFilters: UserListFilters;
-  UserConnection: ResolverTypeWrapper<Omit<UserConnection, 'edges'> & { edges: Array<ResolversTypes['UserEdge']> }>;
+  PostConnection: ResolverTypeWrapper<Omit<PostConnection, 'edges'> & { edges: Array<ResolversTypes['PostEdge']> }>;
   PageInfo: ResolverTypeWrapper<PageInfo>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
+  PostEdge: ResolverTypeWrapper<Omit<PostEdge, 'node'> & { node: ResolversTypes['Post'] }>;
+  PostListFilters: PostListFilters;
+  JwtAccessToken: ResolverTypeWrapper<Scalars['JwtAccessToken']>;
+  UserListFilters: UserListFilters;
+  UserConnection: ResolverTypeWrapper<Omit<UserConnection, 'edges'> & { edges: Array<ResolversTypes['UserEdge']> }>;
   UserEdge: ResolverTypeWrapper<Omit<UserEdge, 'node'> & { node: ResolversTypes['User'] }>;
   Mutation: ResolverTypeWrapper<{}>;
+  CreatePostInput: CreatePostInput;
   CreateUserInput: CreateUserInput;
+  UpdatePostInput: UpdatePostInput;
   UpdateUserInput: UpdateUserInput;
   Money: ResolverTypeWrapper<Scalars['Money']>;
 };
@@ -229,19 +343,26 @@ export type ResolversTypes = {
 export type ResolversParentTypes = {
   Query: {};
   ID: Scalars['ID'];
-  Node: ResolversParentTypes['User'];
-  User: Merge<User, { userId: string }>;
+  Node: ResolversParentTypes['Post'] | ResolversParentTypes['User'];
+  Post: Omit<Post, 'author'> & { author: ResolversParentTypes['User'] };
   DateTime: Scalars['DateTime'];
+  User: Merge<DbUser, { id: string }>;
   String: Scalars['String'];
   Int: Scalars['Int'];
   PaginationCursor: Scalars['PaginationCursor'];
-  UserListFilters: UserListFilters;
-  UserConnection: Omit<UserConnection, 'edges'> & { edges: Array<ResolversParentTypes['UserEdge']> };
+  PostConnection: Omit<PostConnection, 'edges'> & { edges: Array<ResolversParentTypes['PostEdge']> };
   PageInfo: PageInfo;
   Boolean: Scalars['Boolean'];
+  PostEdge: Omit<PostEdge, 'node'> & { node: ResolversParentTypes['Post'] };
+  PostListFilters: PostListFilters;
+  JwtAccessToken: Scalars['JwtAccessToken'];
+  UserListFilters: UserListFilters;
+  UserConnection: Omit<UserConnection, 'edges'> & { edges: Array<ResolversParentTypes['UserEdge']> };
   UserEdge: Omit<UserEdge, 'node'> & { node: ResolversParentTypes['User'] };
   Mutation: {};
+  CreatePostInput: CreatePostInput;
   CreateUserInput: CreateUserInput;
+  UpdatePostInput: UpdatePostInput;
   UpdateUserInput: UpdateUserInput;
   Money: Scalars['Money'];
 };
@@ -250,17 +371,23 @@ export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversT
   name: 'DateTime';
 }
 
+export interface JwtAccessTokenScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JwtAccessToken'], any> {
+  name: 'JwtAccessToken';
+}
+
 export interface MoneyScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Money'], any> {
   name: 'Money';
 }
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  createPost?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<MutationCreatePostArgs, 'input'>>;
   createUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'input'>>;
+  updatePost?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<MutationUpdatePostArgs, 'input'>>;
   updateUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'input'>>;
 };
 
 export type NodeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Node'] = ResolversParentTypes['Node']> = {
-  __resolveType: TypeResolveFn<'User', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'Post' | 'User', ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
 };
 
@@ -276,18 +403,44 @@ export interface PaginationCursorScalarConfig extends GraphQLScalarTypeConfig<Re
   name: 'PaginationCursor';
 }
 
+export type PostResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  author?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type PostConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['PostConnection'] = ResolversParentTypes['PostConnection']> = {
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  edges?: Resolver<Array<ResolversTypes['PostEdge']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type PostEdgeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['PostEdge'] = ResolversParentTypes['PostEdge']> = {
+  cursor?: Resolver<ResolversTypes['PaginationCursor'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['Post'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   node?: Resolver<Maybe<ResolversTypes['Node']>, ParentType, ContextType, RequireFields<QueryNodeArgs, 'id'>>;
   nodes?: Resolver<Array<Maybe<ResolversTypes['Node']>>, ParentType, ContextType, RequireFields<QueryNodesArgs, 'ids'>>;
+  post?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryPostArgs, 'id'>>;
+  posts?: Resolver<Maybe<ResolversTypes['PostConnection']>, ParentType, ContextType, RequireFields<QueryPostsArgs, 'first'>>;
+  token?: Resolver<Maybe<ResolversTypes['JwtAccessToken']>, ParentType, ContextType, RequireFields<QueryTokenArgs, 'email' | 'password'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
   users?: Resolver<Maybe<ResolversTypes['UserConnection']>, ParentType, ContextType, RequireFields<QueryUsersArgs, 'first'>>;
 };
 
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
-  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  posts?: Resolver<Maybe<ResolversTypes['PostConnection']>, ParentType, ContextType, RequireFields<UserPostsArgs, 'first'>>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -305,11 +458,15 @@ export type UserEdgeResolvers<ContextType = Context, ParentType extends Resolver
 
 export type Resolvers<ContextType = Context> = {
   DateTime?: GraphQLScalarType;
+  JwtAccessToken?: GraphQLScalarType;
   Money?: GraphQLScalarType;
   Mutation?: MutationResolvers<ContextType>;
   Node?: NodeResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   PaginationCursor?: GraphQLScalarType;
+  Post?: PostResolvers<ContextType>;
+  PostConnection?: PostConnectionResolvers<ContextType>;
+  PostEdge?: PostEdgeResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   UserConnection?: UserConnectionResolvers<ContextType>;

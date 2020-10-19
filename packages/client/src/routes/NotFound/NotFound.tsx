@@ -15,7 +15,7 @@ const NotFound: React.FC = () => {
       <div>
         The page you request is either non-existant or you don't have access.{" "}
         <Link to={`${loginMeta.path}?from=${location.pathname}`} onClick={logout}>
-          {authState.user.username ? "Switch user?" : "Login?"}
+          {authState.user.username ? "Switch inMemory?" : "Login?"}
         </Link>
       </div>
     </>

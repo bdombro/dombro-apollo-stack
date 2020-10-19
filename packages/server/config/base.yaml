@@ -6,12 +6,10 @@ apollo:
   tracing:
   playground:
 #database:
-#  user:
+#  inMemory:
 #  password:
 #  database:
 #  host: postgres
 #  port: 5432
 authentication:
-  audience:
-  issuer:
-  jwksUri:
+  secret:

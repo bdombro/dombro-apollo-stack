@@ -1,6 +1,5 @@
 import { language } from '@hapi/accept';
 import { Request, Response } from 'express';
-import { AuthenticationError } from 'apollo-server-errors';
 
 import { DataSources } from './datasources';
 
@@ -10,7 +9,8 @@ export interface ContextCreationParameters {
 }
 
 export interface User {
-	scopes: string[];
+	id: string;
+	roles: string[];
 }
 
 export interface ContextInit {
@@ -24,25 +24,13 @@ export type Context = Readonly<
 	}
 >;
 
-export default async function createContext({
-	req,
-}: ContextCreationParameters): Promise<Readonly<ContextInit>> {
-	if (!req.jwt) {
-		throw new AuthenticationError(
-			'Missing or invalid authorization header',
-		);
-	}
-
+export default async function createContext({ req }: ContextCreationParameters): Promise<Readonly<ContextInit>> {
 	const locale = language(req.get('accept-language')) || undefined;
-
 	return {
 		locale,
 		user: {
-			...req.jwt,
-			scopes:
-				typeof req.jwt.scope === 'string'
-					? req.jwt.scope.split(' ')
-					: [],
+			id: req.user?.id as string,
+			roles: (req.user?.roles as string[]) || [],
 		},
 	};
 }

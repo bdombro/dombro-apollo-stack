@@ -1,9 +1,6 @@
 {
   "name": "root",
   "private": true,
-  "devDependencies": {
-    "lerna": "^3.22.1"
-  },
   "scripts": {
     "build": "lerna run --parallel build",
     "clean": "lerna run --stream clean",
@@ -18,5 +15,8 @@
     "test:watch": "lerna run --parallel test:watch",
     "codegen": "lerna run --parallel codegen"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "devDependencies": {
+    "lerna": "^3.22.1"
+  }
 }

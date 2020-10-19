@@ -21,21 +21,13 @@ const config: GraphQLScalarTypeConfig<PaginationCursor, string> = {
 	},
 	parseValue(value) {
 		if (!(typeof value === 'string')) {
-			throw new TypeError(
-				`PaginationCursor cannot represent non string type ${JSON.stringify(
-					value,
-				)}`,
-			);
+			throw new TypeError(`PaginationCursor cannot represent non string type ${JSON.stringify(value)}`);
 		}
 		return PaginationCursor.decode(value);
 	},
 	parseLiteral(ast) {
 		if (ast.kind !== Kind.STRING) {
-			throw new TypeError(
-				`PaginationCursor cannot represent non string type ${
-					'value' in ast ? ast.value : ''
-				}`,
-			);
+			throw new TypeError(`PaginationCursor cannot represent non string type ${'value' in ast ? ast.value : ''}`);
 		}
 		const { value } = ast;
 		return PaginationCursor.decode(value);

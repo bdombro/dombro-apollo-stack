@@ -5,16 +5,16 @@ import { fromGlobalId } from '../../../lib/util';
 
 import { PartialNodeResolver, ResolverTypes } from '..';
 
-const NodeResolver: PartialNodeResolver<ResolversTypes['User']> = {
+const NodeResolver: PartialNodeResolver<ResolversTypes['Post']> = {
 	async node(_, args, { dataSources: ds }) {
 		const { type, id } = fromGlobalId(args.id);
 
 		switch (type) {
-			case ResolverTypes.User: {
-				const user = await ds.inMemory.userById(id);
+			case ResolverTypes.Post: {
+				const post = await ds.post.postById(id);
 				return (
-					user && {
-						...user,
+					post && {
+						...post,
 						id: args.id,
 					}
 				);

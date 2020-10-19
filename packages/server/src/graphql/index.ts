@@ -8,16 +8,14 @@ import schema from './schema';
 import Logging from './logging';
 
 export default class extends ApolloServer {
-	public constructor(opts: Config & { }) {
+	public constructor(opts: Config) {
 		super({
 			...config.apollo,
 			schema,
 			context: createContext,
 			extensions: [Logging],
-			dataSources: () => createDataSources(opts.db),
+			dataSources: () => createDataSources(),
 			...opts,
-			// Force disable since we provide our own render
-			playground: false,
 		});
 	}
 }

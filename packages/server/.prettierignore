@@ -6,4 +6,5 @@ coverage/
 .vscode/
 test/.recordings
 .circleci/
+generated/
 reports/

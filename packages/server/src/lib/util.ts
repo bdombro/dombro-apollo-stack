@@ -13,17 +13,14 @@ export function assertExists<T>(x: T | undefined | null, message?: string): T {
 export function safeArray<T>(array: T[] | null | undefined): T[] {
 	return array || [];
 }
-export function safeRecord<T extends object>(
+export function safeRecord<T extends Record<string, unknown>>(
 	obj: T | null | undefined,
 	defaultValue = {},
 ): Partial<T> {
 	return obj || (defaultValue as Partial<T>);
 }
 
-export function safeNumber(
-	num: number | null | undefined,
-	defaultValue = 0,
-): number {
+export function safeNumber(num: number | null | undefined, defaultValue = 0): number {
 	return num === null || typeof num === 'undefined' ? defaultValue : num;
 }
 
@@ -54,9 +51,7 @@ export function fromGlobalId(globalId: string): GlobalId {
 	};
 }
 
-export function valueOrUndefined<T>(
-	value: T | null | undefined,
-): T | undefined {
+export function valueOrUndefined<T>(value: T | null | undefined): T | undefined {
 	return value === null ? undefined : value;
 }
 

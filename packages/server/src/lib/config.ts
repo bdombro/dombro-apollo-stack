@@ -1,16 +1,4 @@
-import {
-	Array,
-	Boolean,
-	Literal,
-	Number,
-	Record,
-	Runtype,
-	Static,
-	String,
-	Undefined,
-	Union,
-	Union2,
-} from 'runtypes';
+import { Boolean, Literal, Number, Record, Runtype, Static, String, Undefined, Union, Union2 } from 'runtypes';
 import CheckFilter from 'runtypes-filter';
 import configLoader from './config-loader';
 
@@ -35,7 +23,7 @@ const ConfigApollo = Record({
 export type ConfigApollo = Static<typeof ConfigApollo>;
 
 // const ConfigDatabase = Record({
-// 	user: Option(String),
+// 	inMemory: Option(String),
 // 	password: Option(String),
 // 	database: Option(String),
 // 	host: Option(String),
@@ -45,9 +33,7 @@ export type ConfigApollo = Static<typeof ConfigApollo>;
 // export type ConfigDatabase = Static<typeof ConfigDatabase>;
 
 const ConfigAuthentication = Record({
-	jwksUri: String,
-	issuer: String,
-	audience: String,
+	secret: String,
 });
 
 const Config = Record({

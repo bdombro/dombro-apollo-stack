@@ -1,11 +1,11 @@
-import UserDataSource from './default';
+import InMemoryDataSource from './inMemory';
 
 export interface DataSources {
-	user: UserDataSource;
+	inMemory: InMemoryDataSource;
 }
 
 export default function createDataSources(): Readonly<DataSources> {
 	return {
-		user: new UserDataSource(),
+		inMemory: new InMemoryDataSource(),
 	};
 }

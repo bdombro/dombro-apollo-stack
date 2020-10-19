@@ -1,10 +1,8 @@
 baseUrl: http://localhost
-port: 3000
+port: 4000
 apollo:
   tracing: false
   debug: false
   playground: false
 authentication:
-  audience: https://xxx.com
-  issuer: https://xxx.auth0.com/
-  jwksUri: https://xxx.auth0.com/.well-known/jwks.json
+  secret: dontshareme

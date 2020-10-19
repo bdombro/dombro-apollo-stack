@@ -3,7 +3,7 @@ import ParentMeta from "../../meta";
 
 const slug = ":id";
 const routeMeta: RouteMeta = {
-  title: "User Profile",
+  title: "DbUser Profile",
   slug,
   path: `${ParentMeta.path}/${slug}`,
   parent: ParentMeta,

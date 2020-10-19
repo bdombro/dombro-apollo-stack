@@ -26,7 +26,7 @@ generates:
         config:
             contextType: '../graphql/context#Context'
             mappers:
-                User: 'Merge<User, { userId: string }>'
+                User: 'Merge<DbUser, { id: string }>'
         plugins:
             - add: |
                   /* eslint-disable @typescript-eslint/no-explicit-any */

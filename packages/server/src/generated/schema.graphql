@@ -1,5 +1,12 @@
+input CreatePostInput {
+  authorId: ID
+  title: String!
+}
+
 input CreateUserInput {
-	email: String!
+  email: String!
+  name: String!
+  password: String
 }
 
 """
@@ -8,97 +15,165 @@ the RFC 3339 profile of the ISO 8601 standard for representation of dates and ti
 """
 scalar DateTime
 
-"""
-A string that represents a numeric money value
-"""
+scalar JwtAccessToken
+
+"""A string that represents a numeric money value"""
 scalar Money
 
 type Mutation {
-	"""
-	Mutation that creates a new user.
-	All fields are required
-	"""
-	createUser(input: CreateUserInput!): User
+  """
+  Mutation that creates a new post.
+  All fields are required
+  """
+  createPost(input: CreatePostInput!): Post
 
-	"""
-	Mutation that updates a specified user
-	Only field required is the ID.
-	User can then update one to all of the fields
-	If no fields are passed in, the user is not changed.
-	"""
-	updateUser(input: UpdateUserInput!): User
+  """
+  Mutation that creates a new inMemory.
+  All fields are required
+  """
+  createUser(input: CreateUserInput!): User
+
+  """
+  Mutation that updates a specified post
+  Only field required is the ID.
+  DbPost can then update one to posts of the fields
+  If no fields are passed in, the post is not changed.
+  """
+  updatePost(input: UpdatePostInput!): Post
+
+  """
+  Mutation that updates a specified inMemory
+  Only field required is the ID.
+  User can then update one to users of the fields
+  If no fields are passed in, the inMemory is not changed.
+  """
+  updateUser(input: UpdateUserInput!): User
 }
 
 interface Node {
-	id: ID!
+  id: ID!
 }
 
 type PageInfo {
-	hasNextPage: Boolean!
-	hasPreviousPage: Boolean!
-	startCursor: PaginationCursor
-	endCursor: PaginationCursor
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: PaginationCursor
+  endCursor: PaginationCursor
+}
+
+"""An opaque string that can be used in a pagination operation"""
+scalar PaginationCursor
+
+type Post implements Node {
+  """
+  Unique identifier, in the form of a node ID, for a post. For more information on node IDs reference https://relay.dev/
+  """
+  id: ID!
+
+  """Timestamp of when post was created"""
+  createdAt: DateTime!
+
+  """Timestamp of when post was last updated"""
+  updatedAt: DateTime!
+
+  """Author of the post"""
+  author: User!
+
+  """DbPost's name"""
+  title: String!
 }
 
 """
-An opaque string that can be used in a pagination operation
+For further explanation on GraphQL connections and edges, reference
+https://blog.apollographql.com/explaining-graphql-connections-c48b7c3d6976
 """
-scalar PaginationCursor
+type PostConnection {
+  pageInfo: PageInfo!
+  edges: [PostEdge!]!
+}
+
+type PostEdge {
+  cursor: PaginationCursor!
+  node: Post!
+}
+
+"""Possible fields to filter DbPost by"""
+input PostListFilters {
+  authorId: ID
+  title: String
+}
 
 type Query {
-	node(id: ID!): Node
-	nodes(ids: [ID!]!): [Node]!
+  node(id: ID!): Node
+  nodes(ids: [ID!]!): [Node]!
 
-	"""
-	Find a specific user by it's globally uinque identifier
-	"""
-	user(id: ID!): User
+  """Find a specific post by it's globally uinque identifier"""
+  post(id: ID!): Post
 
-	"""
-	Find a collection of users by defined filters, may return 0 results
-	"""
-	users(
-		"""
-		Returns the first n elements from the list
-		"""
-		first: Int! = 25
+  """Find a collection of posts by defined filters, may return 0 results"""
+  posts(
+    """Returns the first n elements from the list"""
+    first: Int!
 
-		"""
-		Returns the elements in the list that come after the specified cursor
-		"""
-		after: PaginationCursor
+    """Returns the elements in the list that come after the specified cursor"""
+    after: PaginationCursor
 
-		"""
-		The possible fields to filter account, found in 'input AccountListFilters'
-		"""
-		filters: UserListFilters
-	): UserConnection
+    """
+    The possible fields to filter account, found in 'input AccountListFilters'
+    """
+    filters: PostListFilters
+  ): PostConnection
+  token(email: String!, password: String!): JwtAccessToken
+
+  """Find a specific inMemory by it's globally uinque identifier"""
+  user(id: ID!): User
+
+  """Find a collection of users by defined filters, may return 0 results"""
+  users(
+    """Returns the first n elements from the list"""
+    first: Int!
+
+    """Returns the elements in the list that come after the specified cursor"""
+    after: PaginationCursor
+
+    """
+    The possible fields to filter account, found in 'input AccountListFilters'
+    """
+    filters: UserListFilters
+  ): UserConnection
+}
+
+input UpdatePostInput {
+  id: ID!
+  title: String
 }
 
 input UpdateUserInput {
-	email: String
+  id: ID!
+  name: String
+  email: String
 }
 
 type User implements Node {
-	"""
-	Unique identifier, in the form of a node ID, for a user. For more information on node IDs reference https://relay.dev/
-	"""
-	id: ID!
+  """Timestamp of when inMemory was created"""
+  createdAt: DateTime!
 
-	"""
-	Timestamp of when user was created
-	"""
-	createdAt: DateTime!
+  """User's email"""
+  email: String!
 
-	"""
-	Timestamp of when user was last updated
-	"""
-	updatedAt: DateTime!
+  """
+  Unique identifier, in the form of a node ID, for a inMemory. For more information on node IDs reference https://relay.dev/
+  """
+  id: ID!
 
-	"""
-	User's name
-	"""
-	email: String!
+  """User's name"""
+  name: String!
+
+  """All posts authored by this user"""
+  posts(first: Int! = 25, after: PaginationCursor): PostConnection
+
+  """Timestamp of when inMemory was last updated"""
+  updatedAt: DateTime!
 }
 
 """
@@ -106,18 +181,16 @@ For further explanation on GraphQL connections and edges, reference
 https://blog.apollographql.com/explaining-graphql-connections-c48b7c3d6976
 """
 type UserConnection {
-	pageInfo: PageInfo!
-	edges: [UserEdge!]!
+  pageInfo: PageInfo!
+  edges: [UserEdge!]!
 }
 
 type UserEdge {
-	cursor: PaginationCursor!
-	node: User!
+  cursor: PaginationCursor!
+  node: User!
 }
 
-"""
-Possible fields to filter User by
-"""
+"""Possible fields to filter User by"""
 input UserListFilters {
-	email: String
+  email: String
 }
