@@ -1,6 +1,6 @@
 # Dombro's Apollo Stack
 
-I've been working with Apollo stacks for years, so it seemed time I make a reference stack to demonstrate my opinions.
+I've been working with Apollo stacks for years, so it seemed time I make a reference stack to do R&D and demonstrate my opinions.
 
 Status: Working, but unstable.
 
